@@ -1,0 +1,8 @@
+langchain==1.2.1
+google-generativeai
+chromadb
+sentence-transformers
+python-dotenv
+google-search-results
+beautifulsoup4
+requests
