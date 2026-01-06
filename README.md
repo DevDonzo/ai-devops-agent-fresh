@@ -1,145 +1,91 @@
-# AI DevOps & Security Automator
+# AI DevOps Agent
 
-## 1. Project Goal
+An autonomous agent that intelligently manages Python dependencies. Instead of just bumping versions, it understands your code and makes informed decisions about which updates are safe to apply.
 
-The core mission of this project is to build an autonomous AI agent that intelligently manages third-party dependencies in software projects. The agent will automate the tedious and critical process of keeping dependencies up-to-date, secure, and compatible with the existing codebase.
+## What It Does
 
-This goes beyond simple version bumping. The agent uses a "Context-Aware Update Strategy" powered by Retrieval-Augmented Generation (RAG) to understand how each dependency is used within the project. This allows it to make informed decisions, identify potential breaking changes, and ensure that updates are not just the latest, but also the safest.
+Managing dependencies sucks. You have to:
+- Check what versions are available
+- Worry about breaking changes
+- Hope the update doesn't break production
+- Do this for dozens of packages across multiple projects
 
-## 2. High-Level Architecture
+This agent automates it by combining RAG (code search) with LLM analysis to actually understand the impact before updating anything.
 
-The agent operates through a series of coordinated capabilities:
+## How It Works
 
-1.  **Dependency Discovery**: It starts by identifying and parsing dependency files (e.g., `requirements.txt`).
-2.  **Intelligence Gathering**: For each dependency, it gathers two key pieces of information:
-    *   **Version Intelligence**: It finds the latest stable version available.
-    *   **Vulnerability Scanning**: It checks for any known security vulnerabilities (CVEs) in the current version.
-3.  **Context-Aware Analysis (RAG)**: Before updating, the agent queries a vector database of the project's own source code to find where the dependency is used. This context can be used to assess the risk of breaking changes.
-4.  **Automated Action**:
-    *   **Code Modification**: It directly updates the dependency files with safe changes.
-    *   **Git Integration**: It creates a new feature branch, commits the changes, and prepares for a pull request, isolating the update for review.
+1. **Scans your code** - Indexes everything with FAISS so it can find where each dependency is used
+2. **Checks for security issues** - Queries OSV.dev for known vulnerabilities
+3. **Finds the latest versions** - Checks PyPI for what's available
+4. **Analyzes the risk** - Uses Google Gemini to look at your actual code usage and assess breaking change risk
+5. **Makes a decision** - Auto-updates low-risk changes, flags risky ones for review
 
-## 3. Core Agentic Capabilities
+The key part is step 4. Instead of blind version bumping, it:
+- Retrieves code snippets showing how you actually use the dependency
+- Passes them to an LLM along with version info
+- Gets back a risk assessment (low/medium/high)
+- Only proceeds if it's confident the update is safe
 
-*   [x] **Dependency Discovery**: Automatically identifies and parses `requirements.txt`.
-*   [x] **Version Intelligence**: Autonomously queries PyPI to find the latest stable version of each dependency.
-*   [x] **Vulnerability Scanning**: Checks for known security vulnerabilities (CVEs) against the OSV.dev database.
-*   [x] **Context-Aware Update Strategy (RAG)**:
-    *   [x] Indexes the codebase into a FAISS vector store.
-    *   [x] Queries the vector store to find how and where the dependency is used.
-    *   [x] **Integrates with Google Gemini LLM to analyze code snippets and assess update risk** ✨ (COMPLETE).
-*   [x] **Intelligent Risk Assessment**: LLM analyzes code usage patterns to determine update safety.
-*   [x] **Risk-Based Decision Making**: Auto-proceeds with low-risk updates, flags medium/high-risk for review.
-*   [x] **Automated Code Modification**: Directly updates `requirements.txt` with safe changes.
-*   [x] **Git Integration**: Creates a new branch, and commits the changes.
+## Features
 
-## 4. Technology Stack
+- Dependency discovery from requirements.txt
+- Version checking against PyPI
+- Vulnerability scanning via OSV.dev
+- RAG-based code analysis with FAISS vector search
+- LLM-powered risk assessment using Google Gemini
+- Git integration for automated branches and commits
+- Risk-based decision making (auto-update safe changes, flag risky ones)
 
-*   **Agent Orchestration**: Python with LangChain and the Google Gemini API.
-*   **Vector Database (RAG)**: `faiss-cpu` (running locally).
-*   **Web Search/API Calls**: `requests` to query PyPI and OSV.dev.
-*   **Codebase Indexing**: `sentence-transformers` library.
-*   **Git Operations**: Python's `subprocess` module.
-*   **Environment**: Python `venv` for dependency management.
+## Setup
 
-## 5. Setup and Execution
-
-1.  **Create a virtual environment:**
-    ```bash
-    python3 -m venv venv
-    ```
-2.  **Activate the virtual environment:**
-    ```bash
-    source venv/bin/activate
-    ```
-3.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-4.  **Set up API Keys:**
-    *   Create a `.env` file in the project root.
-    *   Add your Gemini API key to the `.env` file (required for LLM risk assessment):
-        ```
-        GEMINI_API_KEY="your-gemini-api-key"
-        ```
-    *   Get a free Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey)
-5.  **Run the agent:**
-    ```bash
-    python3 main.py
-    ```
-
-## 6. LLM-Powered Risk Assessment ✨
-
-The agent uses **Google Gemini 2.5 Flash** to perform intelligent risk analysis on dependency updates. This is the core of the "Context-Aware Update Strategy."
-
-### How It Works
-
-1. **Code Context Extraction**: The RAG system retrieves actual code snippets showing how each dependency is used in the project.
-2. **LLM Analysis**: The snippets are passed to Gemini along with:
-   - Dependency name, current version, and target version
-   - Code usage patterns showing how the dependency is integrated
-3. **Risk Assessment**: The LLM evaluates:
-   - Whether the version change is major, minor, or patch
-   - Known breaking changes between versions
-   - API stability and backwards compatibility
-   - Complexity of the dependency integration in the codebase
-4. **Smart Decision Making**:
-   - **LOW RISK** → Auto-proceeds with the update
-   - **MEDIUM RISK** → Flags for manual review (no update)
-   - **HIGH RISK** → Blocks update, recommends careful review
-   - **UNKNOWN** → Conservative default: flags for review (API failures, missing key, etc.)
-
-### Example Flow
-
-```
-Dependency: langchain, Current: 1.0.0, Target: 1.5.0
-
-1. RAG Query finds code usage:
-   - from langchain import OpenAI
-   - chain = LLMChain(...)
-
-2. LLM Analysis:
-   "Major version bump. Usage shows deep integration with LangChain's
-    core APIs. Target version has breaking changes in LLMChain API."
-
-3. Risk Assessment: HIGH
-
-4. Decision: Block update, flag for manual review
+1. Clone and set up:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-### Implementation Details
+2. Add your Gemini API key:
+```bash
+# Create .env file
+echo 'GEMINI_API_KEY=your-key-here' > .env
+```
 
-- **Function**: `assess_dependency_update_risk()` in `tools.py` (lines 102-210)
-- **Model**: `gemini-2.5-flash` (fast, cost-effective)
-- **Prompt Engineering**: Structured prompts with clear risk guidelines
-- **Error Handling**: Graceful fallback to manual review on API failures
-- **Integration**: Called in `main.py` after RAG code snippet retrieval (lines 70-99)
+Get a free key from [Google AI Studio](https://aistudio.google.com/apikey).
 
-## 7. Future Enhancements
+3. Run it:
+```bash
+python3 main.py
+```
 
-Potential improvements for future versions:
+## How The LLM Risk Assessment Works
 
-1. **Enhanced Risk Detection**:
-   - Parse and analyze changelogs for breaking changes
-   - Check GitHub/GitLab release notes automatically
-   - Track package health metrics (stars, contributors, last update)
+When the agent wants to update a dependency, here's what happens:
 
-2. **Advanced Decision Logic**:
-   - User confirmation prompts for medium-risk updates
-   - Audit trails and logging of all risk assessments
-   - Configurable risk thresholds per project
+1. It searches your codebase and finds actual code snippets showing how you use that dependency
+2. It sends those snippets to Gemini along with the version numbers
+3. Gemini analyzes the code and assesses whether the update is risky
+4. Based on the assessment, it decides what to do:
+   - **Low risk** - Updates automatically
+   - **Medium risk** - Flags for manual review
+   - **High risk** - Blocks the update
 
-3. **Multi-LLM Support**:
-   - Support for Claude, GPT-4, and other LLM providers
-   - Fallback to secondary LLM if primary fails
-   - Ensemble risk assessment (multiple LLMs voting)
+Example: You want to update langchain 1.0 to 2.0. The agent finds that your code deeply integrates with LangChain's core APIs. Gemini sees the major version bump and breaking changes, and recommends blocking it for manual review. Smart.
 
-4. **Test Integration**:
-   - Automatically run unit tests before updating
-   - Only proceed if tests pass
-   - Generate test reports in the commit message
+## Technology
 
-5. **Performance Optimization**:
-   - Cache risk assessments to avoid redundant LLM calls
-   - Batch process multiple dependencies
-   - Implement request queuing for rate limiting
+- Python with LangChain for orchestration
+- FAISS for semantic code search
+- Sentence-transformers for embeddings
+- Google Gemini 2.5 Flash for risk analysis
+- OSV.dev API for vulnerability data
+- PyPI API for version checking
+- Git for version control integration
+
+## Future Ideas
+
+- Parse changelogs to supplement LLM analysis
+- Run unit tests before updating to validate safety
+- Support multiple LLM providers (Claude, GPT-4, etc)
+- Cache risk assessments to avoid redundant API calls
+- Configurable risk thresholds per project
