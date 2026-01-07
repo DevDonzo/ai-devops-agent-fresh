@@ -18,16 +18,16 @@ botocore
 # Azure SDK (OpenAI, Blob Storage, Synapse)
 azure-identity
 azure-storage-blob
-openai  # Azure OpenAI uses the openai package
+openai
 
 # ML and data processing
 scikit-learn
 numpy
 joblib
-pyarrow  # For Parquet/Delta support
+pyarrow
 
 # Optional dependencies (uncomment as needed)
 # google-search-results
 # beautifulsoup4
-# xgboost  # For advanced ML models
-# pyodbc  # For Synapse SQL queries
+# xgboost
+# pyodbc
