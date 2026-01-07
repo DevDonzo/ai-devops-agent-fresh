@@ -1,5 +1,5 @@
 # Core dependencies
-langchain==1.2.0
+langchain==1.2.1
 python-dotenv
 requests
 
