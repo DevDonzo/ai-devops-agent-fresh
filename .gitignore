@@ -47,3 +47,12 @@ Thumbs.db
 *.log
 .faiss_index/
 vector_store/
+
+# Local data storage
+data/
+
+# ML model artifacts
+ml/model_artifacts/
+*.joblib
+*.pkl
+model.tar.gz

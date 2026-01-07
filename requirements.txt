@@ -1,9 +1,33 @@
+# Core dependencies
 langchain==1.2.0
-google-generativeai
-chromadb
-sentence-transformers
 python-dotenv
-google-search-results
-beautifulsoup4
 requests
+
+# Vector search and embeddings
+sentence-transformers
 faiss-cpu
+chromadb
+
+# Google Gemini (default LLM)
+google-generativeai
+
+# AWS SDK (Bedrock, SageMaker, S3)
+boto3
+botocore
+
+# Azure SDK (OpenAI, Blob Storage, Synapse)
+azure-identity
+azure-storage-blob
+openai  # Azure OpenAI uses the openai package
+
+# ML and data processing
+scikit-learn
+numpy
+joblib
+pyarrow  # For Parquet/Delta support
+
+# Optional dependencies (uncomment as needed)
+# google-search-results
+# beautifulsoup4
+# xgboost  # For advanced ML models
+# pyodbc  # For Synapse SQL queries
