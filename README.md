@@ -55,8 +55,8 @@ Managing dependencies is tedious. You have to check versions, worry about breaki
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/yourusername/ai-devops-agent.git
-cd ai-devops-agent
+git clone https://github.com/DevDonzo/ai-devops-agent-fresh.git
+cd ai-devops-agent-fresh
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
